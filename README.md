@@ -21,6 +21,25 @@
       - [3.7. Lệnh MAK – Market And Kill (HNX)](#37-lệnh-mak--market-and-kill-hnx)
       - [3.8. Lệnh PLO – Post Limit Order (HNX – lệnh sau giờ)](#38-lệnh-plo--post-limit-order-hnx--lệnh-sau-giờ)
       - [3.9. Lệnh GTD – Good Till Date](#39-lệnh-gtd--good-till-date)
+  - [**III. Đặt lệnh giao dịch**](#iii-đặt-lệnh-giao-dịch)
+    - [**1. Request Body**](#1-request-body)
+    - [**2. Giải thích các tham số trong API**](#2-giải-thích-các-tham-số-trong-api)
+      - [2.1 `instrumentID` – Mã chứng khoán / Hợp đồng tương lai](#21-instrumentid--mã-chứng-khoán--hợp-đồng-tương-lai)
+      - [2.2 `market` – Thị trường](#22-market--thị-trường)
+      - [2.3 `buySell` – Mua hay bán](#23-buysell--mua-hay-bán)
+      - [2.4 `orderType` – Loại lệnh](#24-ordertype--loại-lệnh)
+      - [2.5 `channelID`](#25-channelid)
+      - [`price`](#price)
+      - [2.6 `quantity`](#26-quantity)
+      - [2.7 `account`](#27-account)
+      - [2.8 `requestID`](#28-requestid)
+      - [2.9 `stopOrder`](#29-stoporder)
+      - [2.10 `stopPrice`](#210-stopprice)
+      - [2.11 `stopType`](#211-stoptype)
+      - [2.12 `stopStep` / `profitStep`](#212-stopstep--profitstep)
+      - [`code`](#code)
+      - [2.13 `deviceId`](#213-deviceid)
+      - [2.14 `userAgent`](#214-useragent)
 
 
 
@@ -233,4 +252,97 @@ Lệnh LO nhưng **có ngày hết hạn cụ thể**. Lệnh sẽ treo trên s�
 - **time_in_force:** `GTD`
 - **expire_date:** bắt buộc.
 - **partial_fill:** cho phép; phần chưa khớp tiếp tục treo đến hết hạn.
-Markdown All In One
+
+## <font color="blue">**III. Đặt lệnh giao dịch**</font>
+### **1. Request Body**
+
+```json
+{
+  "instrumentID": "VN30F1M",
+  "market": "VNFE",
+  "buySell": "B",
+  "orderType": "LO",
+  "channelID": "TA",
+  "price": 21000,
+  "quantity": 300,
+  "account": "0901351",
+  "stopOrder": false,
+  "stopPrice": 0,
+  "stopType": "string",
+  "stopStep": 0,
+  "lossStep": 0,
+  "profitStep": 0,
+  "requestID": "16781953",
+  "code": "123456789",
+  "deviceId": "8C-EC-4B-D3-0B-96",
+  "userAgent": "FCTrading"
+}
+```
+
+### **2. Giải thích các tham số trong API**
+
+#### 2.1 `instrumentID` – Mã chứng khoán / Hợp đồng tương lai
+- Mã sản phẩm giao dịch: cổ phiếu (SSI, FPT, TCB...) hoặc phái sinh (VN30F1M...).
+
+#### 2.2 `market` – Thị trường
+- `VN`: thị trường cơ sở.
+- `VNFE`: thị trường phái sinh.
+
+#### 2.3 `buySell` – Mua hay bán
+- `B`: Buy (Long). Kỳ vọng giá chỉ số sẽ TĂNG. Mở vị thế mua.
+- `S`: Sell (Short). Kỳ vọng giá chỉ số sẽ GIẢM. Mở vị thế bán.
+
+#### 2.4 `orderType` – Loại lệnh
+- Xem tai phan: [**II. Các loại lệnh trên thị trường**](#ii-các-loại-lệnh-trên-thị-trường)
+
+#### 2.5 `channelID`
+- `TA`: FastConnect Trading API. Luôn đặt "TA" khi giao dịch qua API FCTrading.
+
+#### `price`
+- Lệnh LO → price > 0.
+- Lệnh khác LO → price = 0.
+
+#### 2.6 `quantity`
+- Cơ sở: số cổ phiếu (bội số 100).
+- Phái sinh: số hợp đồng (1, 2, ...).
+
+#### 2.7 `account`
+- Tài khoản đặt lệnh phù hợp thị trường VN hoặc VNFE.
+
+#### 2.8 `requestID`
+- 8 số, duy nhất trong ngày. Bắt buộc duy nhất trong ngày. Dùng để truy vết và chống trùng lệnh.
+
+#### 2.9 `stopOrder`
+- `false`: lệnh thường.
+- `true`: lệnh điều kiện (phái sinh).
+- `stopOrder`, `stopPrice`, `stopType` (Bo Lệnh điều kiện/Dừng)
+Đây là nhóm thông số quan trọng để đặt các lệnh quản lý rủi ra và chốt lời/lỗ tự động. Chỉ áp dụng khi stopOrder = true.
+
+#### 2.10 `stopPrice`
+- Giá kích hoạt lệnh điều kiện. Khi giá thị trường chạm mức này, lệnh chính (lệnh LO hoặc MP) của bạn sẽ được kích hoạt.
+
+#### 2.11 `stopType`
+- Loại điều kiện kích hoạt.
+  - `D`: Down. Lệnh dừng bán (Stop Loss). Kích hoạt khi giá GIẢM XUỐNG chạm hoặc vượt qua `stopPrice`. Ví dụ: Bạn đang nắm giữ vị thế Mua (Long) VN30F2406 ở giá 21000. Bạn đặt lệnh điều kiện stopType="D", stopPrice=20800, orderType="LO", price=20790. Khi giá thị trường giảm xuống 20800, lệnh bán LO tại 20790 sẽ được kích hoạt để cắt lỗ.
+  - `U`: Up. Lệnh dừng mua (Buy Stop). Kích hoạt khi giá TĂNG LÊN chạm hoặc vượt qua `stopPrice`. Ví dụ: Bạn kỳ vọng sau khi phá vỡ kháng cự 21200, giá sẽ tăng mạnh. Bạn đặt lệnh điều kiện stopType="U", stopPrice=21200, orderType="LO", price=21210. Khi giá thị trường tăng lên 21200, lệnh mua LO tại 21210 sẽ được kích hoạt.
+  - `O`: OCO - One Cancels the Other: Cho phép đặt hai lệnh điều kiện cùng lúc (ví dụ: 1 lệnh chốt lời và 1 lệnh cắt lỗ). Khi một lệnh được kích hoạt, lệnh kia sẽ tự động hủy.
+  - `V`: Trailing Up.
+  - `E`: Trailing Down.
+  - `B`: BullBear.
+
+#### 2.12 `stopStep` / `profitStep`
+- Áp dụng cho BullBear - stopType = "B". Đây là một loại lệnh phức tạp, kết hợp cả chốt lời và cắt lỗ dựa trên "bước giá".
+- `stopStep`: Số bước giá cho lệnh cắt lỗ.
+- `profitStep`: Số bước giá cho lệnh chốt lời.
+- Ví dụ: Giá tham chiếu là 21000, bước giá là 0.1. Nếu đặt profitStep=10 và stopStep=5, lệnh chốt lời sẽ ở mức 21000 + (10 * 0.1) = 21001, và lệnh cắt lỗ ở 21000 - (5 * 0.1) = 20999.5.
+
+#### `code`
+- PIN/OTP giao dịch.
+- Nếu xác thực người dùng isSave = false → bắt buộc nhập OTP/PIN.
+- Dùng để xác thực lệnh trong hệ thống SSI.
+
+#### 2.13 `deviceId`
+- Định danh thiết bị gửi lệnh.
+
+#### 2.14 `userAgent`
+- Tác nhân người dùng.
