@@ -1,11 +1,6 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 __pypackages__/
-downloads/
-lib/
-
-# Builder
-target/
 
 # Virtual Environments
 .env
@@ -14,4 +9,4 @@ env/
 venv/
 
 # Config files
-examples/data-api/config.py
+config.ini

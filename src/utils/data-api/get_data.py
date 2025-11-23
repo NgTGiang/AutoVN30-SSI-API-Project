@@ -1,18 +1,18 @@
 from ssi_fc_data import fc_md_client, model
-import config
+import DataConfig
 from datetime import datetime
 
 
-client = fc_md_client.MarketDataClient(config)
-# def access_token():
-#     print(client.access_token(model.accessToken(config.consumerID, config.consumerSecret)))
+client = fc_md_client.MarketDataClient(DataConfig)
+def access_token():
+    print(client.access_token(model.accessToken(DataConfig.consumerID, DataConfig.consumerSecret)))
 
 def get_intradate_data():
-    print(client.intraday_ohlc(config, model.intraday_ohlc('VN30F1M', '21/11/2025', '21/11/2025', 1, 100, True, 1)))
+    print(client.intraday_ohlc(DataConfig, model.intraday_ohlc('VN30F1M', '21/11/2025', '21/11/2025', 1, 100, True, 1)))
 
 def get_current_price():
     currentDate = datetime.now().strftime('%d/%m/%Y')
-    response = client.intraday_ohlc(config, model.intraday_ohlc('VN30F1M', currentDate, currentDate, 1, 100))
+    response = client.intraday_ohlc(DataConfig, model.intraday_ohlc('VN30F1M', currentDate, currentDate, 1, 100))
     latest_record = max(response["data"], key=lambda x: x["Time"])
     currentPrice = latest_record["Close"]
     print("currentPrice: " + currentPrice)
