@@ -1,6 +1,6 @@
 from ssi_fc_data import fc_md_client, model
 from src.utils.dataAPI import data_config
-from datetime import datetime
+from datetime import datetime, timedelta
 from logger_config import get_logger
 from zoneinfo import ZoneInfo
 import logging
@@ -15,7 +15,7 @@ def access_token():
 def get_intradate_data():
     print(client.intraday_ohlc(data_config, model.intraday_ohlc('VN30F1M', '21/11/2025', '21/11/2025', 1, 100, True, 1)))
 
-def get_current_price(symbol: str = 'VN30F1M'):
+def get_current_price(symbol: str = 'VN30F1M') -> float:
     currentDate = datetime.now(ZoneInfo('Asia/Ho_Chi_Minh')).strftime('%d/%m/%Y')
     response = client.intraday_ohlc(data_config, model.intraday_ohlc(symbol, currentDate, currentDate))
     if response["data"]:
@@ -26,7 +26,7 @@ def get_current_price(symbol: str = 'VN30F1M'):
         latest_record = None
         logger.warning(f"No {symbol} data available for the current date {currentDate}.")
 
-def get_current_Opening_price(symbol: str = 'VN30F1M'):
+def get_current_Opening_price(symbol: str = 'VN30F1M') -> float:
     currentDate = datetime.now(ZoneInfo('Asia/Ho_Chi_Minh')).strftime('%d/%m/%Y')
     response = client.intraday_ohlc(data_config, model.intraday_ohlc(symbol, currentDate, currentDate))
     if response["data"]:
@@ -37,7 +37,7 @@ def get_current_Opening_price(symbol: str = 'VN30F1M'):
         latest_record = None
         logger.warning(f"No {symbol} data available for the current date {currentDate}.")
 
-def get_current_High_price(symbol: str = 'VN30F1M'):
+def get_current_High_price(symbol: str = 'VN30F1M') -> float:
     currentDate = datetime.now(ZoneInfo('Asia/Ho_Chi_Minh')).strftime('%d/%m/%Y')
     response = client.intraday_ohlc(data_config, model.intraday_ohlc(symbol, currentDate, currentDate))
     if response["data"]:
@@ -48,7 +48,7 @@ def get_current_High_price(symbol: str = 'VN30F1M'):
         latest_record = None
         logger.warning(f"No {symbol} data available for the current date {currentDate}.")
         
-def get_current_Low_price(symbol: str = 'VN30F1M'):
+def get_current_Low_price(symbol: str = 'VN30F1M') -> float:
     currentDate = datetime.now(ZoneInfo('Asia/Ho_Chi_Minh')).strftime('%d/%m/%Y')
     response = client.intraday_ohlc(data_config, model.intraday_ohlc(symbol, currentDate, currentDate))
     if response["data"]:
@@ -59,7 +59,7 @@ def get_current_Low_price(symbol: str = 'VN30F1M'):
         latest_record = None
         logger.warning(f"No {symbol} data available for the current date {currentDate}.")
         
-def get_current_closing_price(symbol: str = 'VN30F1M'):
+def get_current_closing_price(symbol: str = 'VN30F1M') -> float:
     currentDate = datetime.now(ZoneInfo('Asia/Ho_Chi_Minh')).strftime('%d/%m/%Y')
     response = client.intraday_ohlc(data_config, model.intraday_ohlc(symbol, currentDate, currentDate))
     if response["data"]:
@@ -69,6 +69,28 @@ def get_current_closing_price(symbol: str = 'VN30F1M'):
     else:
         latest_record = None
         logger.warning(f"No {symbol} data available for the current date {currentDate}.")
+        
+def get_celling_price(symbol: str = 'VN30F1M') -> float:
+    yesterday = (datetime.now(ZoneInfo('Asia/Ho_Chi_Minh')) - timedelta(days=1)).strftime('%d/%m/%Y')
+    response = client.intraday_ohlc(data_config, model.intraday_ohlc(symbol, yesterday, yesterday))
+    if response["data"]:
+        latest_record = max(response["data"], key=lambda x: x["TradingDate"])
+        cellingPrice = latest_record["CeilingPrice"]
+        logger.info(f"Ceiling price: {cellingPrice}")
+    else:
+        latest_record = None
+        logger.warning(f"No {symbol} data available for the current date {cellingPrice}.")
+    
+def get_floor_price(symbol: str = 'VN30F1M') -> float:
+    yesterday = (datetime.now(ZoneInfo('Asia/Ho_Chi_Minh')) - timedelta(days=1)).strftime('%d/%m/%Y')
+    response = client.intraday_ohlc(data_config, model.intraday_ohlc(symbol, yesterday, yesterday))
+    if response["data"]:
+        latest_record = max(response["data"], key=lambda x: x["TradingDate"])
+        floorPrice = latest_record["FloorPrice"]
+        logger.info(f"Floor price: {floorPrice}")
+    else:
+        latest_record = None
+        logger.warning(f"No {symbol} data available for the current date {floorPrice}.")
 
 def main():
     implement = True
@@ -82,6 +104,8 @@ def main():
         print('04  - Get current high price.')
         print('05  - Get current low price.')
         print('06  - Get current closing price.')
+        print('07  - Get celling price.')
+        print('08  - Get floor price.')
         print('00  - Exist.\n')
         value = input('Enter your choice: ')
 
@@ -97,6 +121,10 @@ def main():
             get_current_closing_price()
         if value == '06':
             get_current_price()
+        if value == '06':
+            get_celling_price()
+        if value == '06':
+            get_floor_price()
         if value == '00':
             implement = False
             print('\n-------------Exist-------------\n')
