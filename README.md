@@ -21,6 +21,10 @@
       - [3.7. Lệnh MAK – Market And Kill (HNX)](#37-lệnh-mak--market-and-kill-hnx)
       - [3.8. Lệnh PLO – Post Limit Order (HNX – lệnh sau giờ)](#38-lệnh-plo--post-limit-order-hnx--lệnh-sau-giờ)
       - [3.9. Lệnh GTD – Good Till Date](#39-lệnh-gtd--good-till-date)
+  - [**III. Run lenh LO**](#iii-run-lenh-lo)
+    - [**1. Tao file config.ini va luu cac secret keys**](#1-tao-file-configini-va-luu-cac-secret-keys)
+    - [**2. Nhap OTP code tu app SSI tren dien thoai vao bien OTPCode**](#2-nhap-otp-code-tu-app-ssi-tren-dien-thoai-vao-bien-otpcode)
+    - [\*\*3. Run file main.py](#3-run-file-mainpy)
 
 
 
@@ -233,4 +237,27 @@ Lệnh LO nhưng **có ngày hết hạn cụ thể**. Lệnh sẽ treo trên s�
 - **time_in_force:** `GTD`
 - **expire_date:** bắt buộc.
 - **partial_fill:** cho phép; phần chưa khớp tiếp tục treo đến hết hạn.
-Markdown All In One
+
+
+
+## <font color="blue">**III. Run lenh LO**</font>
+### **1. Tao file config.ini va luu cac secret keys**
+```init
+[DEFAULT]
+DataConsumerID = 
+DataConsumerSecret = 
+TradingConsumerID = 
+TradingConsumerSecret = 
+TradingPrivateKey = 
+OTPCode = 
+```
+
+### **2. Nhap OTP code tu app SSI tren dien thoai vao bien OTPCode**
+```
+OTPCode = <Your_OPT_code>
+```
+
+### **3. Run file main.py
+```terminal
+python -m src.main
+```
